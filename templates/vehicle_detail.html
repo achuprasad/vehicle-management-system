@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Vehicle Detail{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">Vehicle Detail</h2>
+  <dl class="row">
+    <dt class="col-sm-3">Vehicle Number:</dt>
+    <dd class="col-sm-9">{{ vehicle.vehicle_number }}</dd>
+    <dt class="col-sm-3">Vehicle Type:</dt>
+    <dd class="col-sm-9">{{ vehicle.get_vehicle_type_display }}</dd>
+    <dt class="col-sm-3">Vehicle Model:</dt>
+    <dd class="col-sm-9">{{ vehicle.vehicle_model }}</dd>
+    <dt class="col-sm-3">Vehicle Description:</dt>
+    <dd class="col-sm-9">{{ vehicle.vehicle_description }}</dd>
+  </dl>
+  <a class="btn btn-warning" href="{% url 'vehicle_update' pk=vehicle.pk %}">Edit</a>
+  <a class="btn btn-danger" href="{% url 'vehicle_delete' pk=vehicle.pk %}">Delete</a>
+{% endblock %}

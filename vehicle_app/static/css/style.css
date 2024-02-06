@@ -1,0 +1,36 @@
+
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    padding: 20px;
+}
+
+.nav-link {
+    color: #007bff;
+}
+
+.list-group-item {
+    cursor: pointer;
+}
+
+.btn {
+    margin-right: 5px;
+}
+
+.form-control {
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    margin-top: 10px;
+}
+
+.btn-danger {
+    margin-top: 10px;
+}
+
+h2 {
+    margin-top: 10px;
+}
