@@ -3,6 +3,10 @@ from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import Group
+
+from vehicle_app.decorators import custom_decorator, custom_decorator_admin
+
+
 from .models import UserProfile, UserRole, Vehicle, UserGroup
 from django.contrib.auth.models import User
 from .forms import UserLoginForm, UserProfileForm, UserRegistrationForm, VehicleForm
@@ -56,6 +60,7 @@ class UserLogoutView(View):
 class VehicleListView(View):
     @method_decorator(login_required(login_url='/login/'))
     def get(self, request):
+        print(request.user,'--------here')
         user_group = request.user.userprofile.group
         if user_group:
             if user_group.role == UserRole.SUPER_ADMIN:  
@@ -68,7 +73,7 @@ class VehicleListView(View):
                 vehicles = Vehicle.objects.none()  
         else:
             vehicles = Vehicle.objects.none()  
-        return render(request, 'vehicle_list.html', {'vehicles': vehicles})
+        return render(request, 'vehicle_list.html', {'vehicles': vehicles,'user':request.user})
 
 
 class VehicleDetailView(View):
@@ -76,11 +81,12 @@ class VehicleDetailView(View):
     def get(self, request, pk):
         vehicle = get_object_or_404(Vehicle, pk=pk)
         user_group = request.user.userprofile.group
-        if user_group and (user_group.role == UserRole.SUPER_ADMIN or user_group.role == UserRole.ADMIN):
+        if user_group and (user_group.role == UserRole.SUPER_ADMIN or user_group.role == UserRole.ADMIN or user_group.role == UserRole.USER):
             return render(request, 'vehicle_detail.html', {'vehicle': vehicle})
         else:
             return render(request, 'permission_denied.html')
-
+        
+@method_decorator(custom_decorator, name='dispatch')        
 class VehicleCreateView(View):
     @method_decorator(login_required(login_url='/login/'))
     def get(self, request):
@@ -102,6 +108,7 @@ class VehicleCreateView(View):
         else:
             return render(request, 'permission_denied.html')
 
+@method_decorator(custom_decorator_admin, name='dispatch')  
 class VehicleUpdateView(View):
     @method_decorator(login_required(login_url='/login/'))
     def get(self, request, pk):
@@ -125,13 +132,14 @@ class VehicleUpdateView(View):
             return render(request, 'vehicle_form.html', {'form': form, 'vehicle': vehicle})
         else:
             return render(request, 'permission_denied.html')
-
+        
+@method_decorator(custom_decorator, name='dispatch')  
 class VehicleDeleteView(View):
     @method_decorator(login_required)
     def get(self, request, pk):
         vehicle = get_object_or_404(Vehicle, pk=pk)
         user_group = request.user.userprofile.group
-        if user_group and (user_group.role == UserRole.SUPER_ADMIN or user_group.role == UserRole.ADMIN):
+        if user_group and (user_group.role == UserRole.SUPER_ADMIN):
             return render(request, 'vehicle_confirm_delete.html', {'vehicle': vehicle})
         else:
             return render(request, 'permission_denied.html')
@@ -148,6 +156,7 @@ class VehicleDeleteView(View):
 
 
 
+@method_decorator(custom_decorator, name='dispatch')
 class UserProfileCreateView(View):
     def get(self, request):
         if not request.user.is_superuser:
@@ -160,11 +169,20 @@ class UserProfileCreateView(View):
             return render(request, 'permission_denied.html')  
         form = UserProfileForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            user, created = User.objects.get_or_create(username=username)
-            group_name = form.cleaned_data['group_name']
-            group, created = UserGroup.objects.get_or_create(name=group_name)
-            user_profile = UserProfile.objects.create(user=user, group=group)
-            return redirect('/')  
+            try:
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                email = request.POST.get('email')
+                user = User.objects.create(username=username, email=email,password=password)
+                group_name = request.POST.get('group_name')
+                print('--useruseruser--',user)
+                print('--group_name---',group_name)
+                group = UserGroup.objects.get(name=group_name)
+                print('---group-----',group_name)
+                user_profile = UserProfile.objects.create(user=user, group=group)
+                return redirect('/') 
+            except:
+                ...  
         else:
-            return render(request, 'user_profile_form.html', {'form': form})
+            print('00000000  here   -----')
+        return render(request, 'user_profile_form.html', {'form': form})

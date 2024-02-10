@@ -14,6 +14,10 @@
     <dt class="col-sm-3">Vehicle Description:</dt>
     <dd class="col-sm-9">{{ vehicle.vehicle_description }}</dd>
   </dl>
+  {% if user.is_superuser or user.userprofile.group.role == 'admin' %}
   <a class="btn btn-warning" href="{% url 'vehicle_update' pk=vehicle.pk %}">Edit</a>
+  {% endif %}
+  {% if user.is_superuser %}
   <a class="btn btn-danger" href="{% url 'vehicle_delete' pk=vehicle.pk %}">Delete</a>
+  {% endif %}
 {% endblock %}
