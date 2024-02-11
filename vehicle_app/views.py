@@ -92,6 +92,7 @@ class VehicleCreateView(View):
     def get(self, request):
         user_group = request.user.userprofile.group
         if user_group and user_group.role == UserRole.SUPER_ADMIN: 
+            print('uuuuuuuuu')
             form = VehicleForm()
             return render(request, 'vehicle_form.html', {'form': form})
         else:
@@ -172,17 +173,20 @@ class UserProfileCreateView(View):
             try:
                 username = form.cleaned_data['username']
                 password = form.cleaned_data['password']
-                email = request.POST.get('email')
-                user = User.objects.create(username=username, email=email,password=password)
                 group_name = request.POST.get('group_name')
-                print('--useruseruser--',user)
-                print('--group_name---',group_name)
+                print('--username--', username)
+                print('--group_name---', group_name)
+                user = User.objects.create(username=username)
+                user.set_password(password)  
+                user.save()
                 group = UserGroup.objects.get(name=group_name)
-                print('---group-----',group_name)
-                user_profile = UserProfile.objects.create(user=user, group=group)
-                return redirect('/') 
-            except:
-                ...  
+                if group:
+                    user_profile = UserProfile.objects.create(user=user, group=group)
+                    return redirect('/') 
+                else:
+                    print("Group not found.")
+            except Exception as e:
+                print("Error:", e)
         else:
-            print('00000000  here   -----')
+            print('Form is not valid:', form.errors)
         return render(request, 'user_profile_form.html', {'form': form})

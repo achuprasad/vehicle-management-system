@@ -1,3 +1,5 @@
 {
-    "remote.SSH.remoteServerListenOnSocket": false
+    "remote.SSH.remoteServerListenOnSocket": false,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "basic"
 }

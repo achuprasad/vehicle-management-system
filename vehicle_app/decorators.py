@@ -10,6 +10,7 @@ def custom_decorator(func):
     """
     def wrapper(request, *args, **kwargs):
         if not request.user.is_superuser:
+            print('----here not getting why')
             return render(request, 'permission_denied.html')  
         return func(request, *args, **kwargs)
     return wrapper
